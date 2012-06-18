@@ -10,6 +10,9 @@
 #define m0_op_(NAME, A1, A2, A3, ...) \
 	((m0_op){ M0_OP_ ## NAME, m0_op_argtypes_(A1, A2, A3), { __VA_ARGS__ } })
 
+#define m0_op_iii(NAME, ...) \
+	m0_op_(NAME, IMMEDIATE, IMMEDIATE, IMMEDIATE, __VA_ARGS__)
+
 #define m0_op_rii(NAME, ...) \
 	m0_op_(NAME, REGISTER, IMMEDIATE, IMMEDIATE, __VA_ARGS__)
 
@@ -34,6 +37,7 @@ enum
 enum
 {
 	M0_CONST_INT,
+	M0_CONST_FLOAT,
 	M0_CONST_STRING
 };
 

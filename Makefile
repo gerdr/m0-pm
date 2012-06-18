@@ -1,10 +1,10 @@
 CC := gcc
-CFLAGS := -std=c99 -O3
+CFLAGS := -std=c99 -O3 -ggdb3
 OBJECTS := core.o ops.o
 
 .PHONY : build clean check
 
-build : $(OBJECTS) test
+build : $(OBJECTS)
 
 clean :
 	rm -f $(OBJECTS) test

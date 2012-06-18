@@ -18,28 +18,44 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 		case M0_OP_ADD:
 		case M0_OP_FADD:
-		fprintf(file, "%s ", NAMES[code]);
+		goto BINOP;
+
+		default:
+		return 0;
+	}
+
+BINOP:
+	fprintf(file, "%s ", NAMES[code]);
+
+	unsigned types = op.argtypes;
+	switch(types & 3)
+	{
+		case M0_ARG_REGISTER:
+		fprintf(file, "%%%u, ", (unsigned)op.args[0]);
 		break;
 
 		default:
 		return 0;
 	}
 
-	unsigned types = op.argtypes;
-	for(int i = 0; i < 3; ++i, types >>= 2)
+	for(int i = 1; i < 3; ++i)
 	{
+		types >>= 2;
 		switch(types & 3)
 		{
 			case M0_ARG_IMMEDIATE:
 			{
 				unsigned id = op.args[i];
-				unsigned type = constants[id].type;
 				const m0_value value = constants[id].value;
 
-				switch(type)
+				switch(constants[id].type)
 				{
 					case M0_CONST_INT:
 					fprintf(file, "%lli", (long long)value.as_int);
+					goto NEXT;
+
+					case M0_CONST_FLOAT:
+					fprintf(file, "%f", (double)value.as_float);
 					goto NEXT;
 
 					default:
@@ -54,10 +70,9 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			case M0_ARG_SYMBOLIC:
 			{
 				unsigned id = op.args[i];
-				unsigned type = constants[id].type;
 				const m0_value value = constants[id].value;
 
-				switch(type)
+				switch(constants[id].type)
 				{
 					case M0_CONST_STRING:
 					fprintf(file, "@%s", (const char *)value.as_cptr);
@@ -81,6 +96,8 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 {
+	enum { UNKNOWN, INT, FLOAT };
+
 	static const void *const OPS[] = {
 		[M0_OP_HALT] = m0_core_yield,
 		[M0_OP_ADD] = m0_core_add_ia,
@@ -88,6 +105,8 @@ size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 	};
 
 	unsigned code = op.code;
+	unsigned types = op.argtypes;
+	unsigned mode = UNKNOWN;
 	size_t count = 0;
 
 	switch(code)
@@ -97,11 +116,88 @@ size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 		return 1;
 
 		case M0_OP_ADD:
+		mode = INT;
+		goto BINOP;
+
 		case M0_OP_FADD:
-		// TODO
-		return count;
+		mode = FLOAT;
+		goto BINOP;
 
 		default:
 		return 0;
 	}
+
+BINOP:
+	switch(types >> 2 & 3)
+	{
+		case M0_ARG_IMMEDIATE:
+		switch(mode)
+		{
+			case INT:
+			{
+				unsigned id = op.args[1];
+				if(constants[id].type != M0_CONST_INT)
+					return 0;
+
+				buffer[count++].as_cptr = m0_core_set_ia;
+				buffer[count++].as_uint = constants[id].value.as_uint;
+				break;
+			}
+
+			default:
+			return 0;
+		}
+		break;
+
+		default:
+		return 0;
+	}
+
+	switch(types >> 4 & 3)
+	{
+		case M0_ARG_IMMEDIATE:
+		switch(mode)
+		{
+			case INT:
+			{
+				unsigned id = op.args[2];
+				if(constants[id].type != M0_CONST_INT)
+					return 0;
+
+				buffer[count++].as_cptr = m0_core_set_ib;
+				buffer[count++].as_uint = constants[id].value.as_uint;
+				break;
+			}
+
+			default:
+			return 0;
+		}
+		break;
+
+		default:
+		return 0;
+	}
+
+	buffer[count++].as_cptr = OPS[code];
+
+	switch(types & 3)
+	{
+		case M0_ARG_REGISTER:
+		switch(mode)
+		{
+			case INT:
+			buffer[count++].as_cptr = m0_core_put_ia;
+			buffer[count++].as_uword = op.args[0];
+			break;
+
+			default:
+			return 0;
+		}
+		break;
+
+		default:
+		return 0;
+	}
+
+	return count;
 }
