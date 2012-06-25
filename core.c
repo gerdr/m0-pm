@@ -43,6 +43,22 @@ void m0_core(m0_vm *restrict vm)
 	fa.f += fb.f;
 	goto *(++ip)->as_cptr;
 
+	label(load_u32_ia);
+	ia.u = (m0_uint)*(uint32_t *)(wa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u32_ib);
+	ib.u = (m0_uint)*(uint32_t *)(wb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(offset_wa);
+	wa.p += (m0_word)ia.s * (++ip)->as_word;
+	goto *(++ip)->as_cptr;
+
+	label(offset_wb);
+	wb.p += (m0_word)ib.s * (++ip)->as_word;
+	goto *(++ip)->as_cptr;
+
 	label(yield);
 	vm->ip = ip;
 	vm->rp = rp;

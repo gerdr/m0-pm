@@ -27,21 +27,9 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 BINOP:
 	fprintf(file, "%s ", NAMES[code]);
 
-	unsigned types = op.argtypes;
-	switch(types & 3)
+	for(unsigned i = 0; i < 3; ++i)
 	{
-		case M0_ARG_REGISTER:
-		fprintf(file, "%%%u, ", (unsigned)op.args[0]);
-		break;
-
-		default:
-		return 0;
-	}
-
-	for(int i = 1; i < 3; ++i)
-	{
-		types >>= 2;
-		switch(types & 3)
+		switch(m0_argtype(op, i))
 		{
 			case M0_ARG_IMMEDIATE:
 			{
@@ -70,17 +58,55 @@ BINOP:
 			case M0_ARG_SYMBOLIC:
 			{
 				unsigned id = op.args[i];
-				const m0_value value = constants[id].value;
-
-				switch(constants[id].type)
-				{
-					case M0_CONST_STRING:
-					fprintf(file, "@%s", (const char *)value.as_cptr);
-					goto NEXT;
-
-					default:
+				if(!constants[id].type == M0_CONST_STRING)
 					return 0;
+
+				fprintf(file, "@%s", constants[id].value.as_cptr);
+				goto NEXT;
+			}
+
+			case M0_ARG_MEMORY:
+			{
+				static const char *const TYPES[] = {
+					[M0_MEM_I32] = "i32"
+				};
+
+				unsigned id = op.args[i];
+				if(!constants[id].type == M0_CONST_ADDRESS)
+					return 0;
+
+				const m0_address *address = constants[id].value.as_cptr;
+				_Bool is_symbolic = address->base_symbol;
+				_Bool is_displaced = address->displacement;
+				_Bool has_offset = address->offset_multiplier;
+
+				fprintf(file, "%s(", TYPES[address->type]);
+
+				if(is_symbolic)
+					fprintf(file, "@%s", address->base_symbol);
+				else
+					fprintf(file, "%%%u", (unsigned)address->base_register);
+
+				if(is_displaced || has_offset)
+					fprintf(file, ":");
+
+				if(has_offset)
+				{
+					fprintf(file, "%%%u", (unsigned)address->offset_register);
+					if(address->offset_multiplier != 1)
+						fprintf(file, "*%li", (long)address->offset_multiplier);
 				}
+
+				if(is_displaced)
+				{
+					fprintf(file, "%s%li", has_offset ?
+						(address->displacement < 0 ? "-" : "+") : "",
+						(long)address->displacement);
+				}
+
+				fprintf(file, ")");
+
+				goto NEXT;
 			}
 
 			default:
@@ -105,7 +131,6 @@ size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 	};
 
 	unsigned code = op.code;
-	unsigned types = op.argtypes;
 	unsigned mode = UNKNOWN;
 	size_t count = 0;
 
@@ -128,59 +153,47 @@ size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 	}
 
 BINOP:
-	switch(types >> 2 & 3)
+	for(unsigned i = 1; i <= 2; ++i)
 	{
-		case M0_ARG_IMMEDIATE:
-		switch(mode)
-		{
-			case INT:
-			{
-				unsigned id = op.args[1];
-				if(constants[id].type != M0_CONST_INT)
-					return 0;
+		static const void *const SET[] = {
+			[1] = m0_core_set_ia,
+			[2] = m0_core_set_ib
+		};
 
-				buffer[count++].as_cptr = m0_core_set_ia;
-				buffer[count++].as_uint = constants[id].value.as_uint;
-				break;
+		static const void *const LOAD32_I[] = {
+			[1] = m0_core_load_u32_ia,
+			[2] = m0_core_load_u32_ib
+		};
+
+		switch(m0_argtype(op, i))
+		{
+			case M0_ARG_IMMEDIATE:
+			switch(mode)
+			{
+				case INT:
+				{
+					unsigned id = op.args[i];
+					if(constants[id].type != M0_CONST_INT)
+						return 0;
+
+					buffer[count++].as_cptr = SET[i];
+					buffer[count++].as_uint = constants[id].value.as_uint;
+					break;
+				}
+
+				default:
+				return 0;
 			}
+			break;
 
 			default:
 			return 0;
 		}
-		break;
-
-		default:
-		return 0;
-	}
-
-	switch(types >> 4 & 3)
-	{
-		case M0_ARG_IMMEDIATE:
-		switch(mode)
-		{
-			case INT:
-			{
-				unsigned id = op.args[2];
-				if(constants[id].type != M0_CONST_INT)
-					return 0;
-
-				buffer[count++].as_cptr = m0_core_set_ib;
-				buffer[count++].as_uint = constants[id].value.as_uint;
-				break;
-			}
-
-			default:
-			return 0;
-		}
-		break;
-
-		default:
-		return 0;
 	}
 
 	buffer[count++].as_cptr = OPS[code];
 
-	switch(types & 3)
+	switch(m0_argtype(op, 0))
 	{
 		case M0_ARG_REGISTER:
 		switch(mode)

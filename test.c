@@ -57,5 +57,17 @@ int main(void)
 		assert(regs[0].as_int == A + B);
 	}
 
+	{
+		m0_address address = { 0, NULL, 10, 4, 9, 1 };
+
+		m0_constant constants[] = {
+			{ M0_CONST_ADDRESS, { .as_cptr = &address } },
+			{ M0_CONST_INT, { .as_int = 12 } },
+			{ M0_CONST_INT, { .as_int = 42 } }
+		};
+
+		m0_disassemble(m0_op_mii(ADD, 0, 1, 2), constants, stdout);
+	}
+
 	return 0;
 }
