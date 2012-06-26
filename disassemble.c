@@ -5,6 +5,7 @@
 static const char *const NAMES[] = {
 	[M0_OP_HALT] = "halt",
 	[M0_OP_ADD] = "add",
+	[M0_OP_MUL] = "mul",
 	[M0_OP_FADD] = "fadd",
 };
 
@@ -20,6 +21,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 		break;
 
 		case M0_OP_ADD:
+		case M0_OP_MUL:
 		case M0_OP_FADD:
 		arg_count = 3;
 		break;

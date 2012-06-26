@@ -1,15 +1,16 @@
 #include "m0.h"
 
+enum { UNKNOWN, INT, FLOAT };
+
+static const void *const OPS[] = {
+	[M0_OP_HALT] = m0_core_yield,
+	[M0_OP_ADD] = m0_core_add_ia,
+	[M0_OP_MUL] = m0_core_mul_ia,
+	[M0_OP_FADD] = m0_core_add_fa,
+};
+
 size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 {
-	enum { UNKNOWN, INT, FLOAT };
-
-	static const void *const OPS[] = {
-		[M0_OP_HALT] = m0_core_yield,
-		[M0_OP_ADD] = m0_core_add_ia,
-		[M0_OP_FADD] = m0_core_add_fa,
-	};
-
 	unsigned code = op.code;
 	unsigned mode = UNKNOWN;
 	size_t count = 0;
@@ -21,6 +22,7 @@ size_t m0_compile(m0_op op, const m0_constant *constants, m0_value *buffer)
 		return 1;
 
 		case M0_OP_ADD:
+		case M0_OP_MUL:
 		mode = INT;
 		goto BINOP;
 
@@ -38,6 +40,11 @@ BINOP:
 		static const void *const SET[] = {
 			[1] = m0_core_set_ia,
 			[2] = m0_core_set_ib
+		};
+
+		static const void *const GET[] = {
+			[1] = m0_core_get_ia,
+			[2] = m0_core_get_ib
 		};
 
 		static const void *const LOAD32_I[] = {
@@ -58,6 +65,21 @@ BINOP:
 
 					buffer[count++].as_cptr = SET[i];
 					buffer[count++].as_uint = constants[id].value.as_uint;
+					break;
+				}
+
+				default:
+				return 0;
+			}
+			break;
+
+			case M0_ARG_REGISTER:
+			switch(mode)
+			{
+				case INT:
+				{
+					buffer[count++].as_cptr = GET[i];
+					buffer[count++].as_uword = op.args[i];
 					break;
 				}
 

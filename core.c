@@ -35,8 +35,20 @@ void m0_core(m0_vm *restrict vm)
 	ib.u = (++ip)->as_uint;
 	goto *(++ip)->as_cptr;
 
+	label(get_ia);
+	ia.u = rp[(++ip)->as_uword].as_uint;
+	goto *(++ip)->as_cptr;
+
+	label(get_ib);
+	ib.u = rp[(++ip)->as_uword].as_uint;
+	goto *(++ip)->as_cptr;
+
 	label(add_ia);
 	ia.u += ib.u;
+	goto *(++ip)->as_cptr;
+
+	label(mul_ia);
+	ia.u *= ib.u;
 	goto *(++ip)->as_cptr;
 
 	label(add_fa);

@@ -16,6 +16,9 @@
 #define m0_op_rii(NAME, ...) \
 	m0_op_(NAME, REGISTER, IMMEDIATE, IMMEDIATE, __VA_ARGS__)
 
+#define m0_op_rri(NAME, ...) \
+	m0_op_(NAME, REGISTER, REGISTER, IMMEDIATE, __VA_ARGS__)
+
 #define m0_op_mii(NAME, ...) \
 	m0_op_(NAME, MEMORY, IMMEDIATE, IMMEDIATE, __VA_ARGS__)
 
@@ -26,6 +29,7 @@ enum
 {
 	M0_OP_HALT,
 	M0_OP_ADD,
+	M0_OP_MUL,
 	M0_OP_FADD
 };
 
@@ -112,8 +116,11 @@ struct m0_vm_
 extern const char m0_core_yield[];
 extern const char m0_core_set_ia[];
 extern const char m0_core_set_ib[];
+extern const char m0_core_get_ia[];
+extern const char m0_core_get_ib[];
 extern const char m0_core_put_ia[];
 extern const char m0_core_add_ia[];
+extern const char m0_core_mul_ia[];
 extern const char m0_core_add_fa[];
 extern const char m0_core_load_u32_ia[];
 extern const char m0_core_load_u32_ib[];
