@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -std=c99 -O3 -ggdb3
-OBJECTS := core.o ops.o
+OBJECTS := core.o compile.o disassemble.o
 
 .PHONY : build clean check
 
