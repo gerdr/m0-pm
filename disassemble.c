@@ -1,5 +1,7 @@
 #include "m0.h"
 
+#define say(...) do if(fprintf(file, __VA_ARGS__) < 0) return 0; while(0)
+
 static const char *const NAMES[] = {
 	[M0_OP_HALT] = "halt",
 	[M0_OP_ADD] = "add",
@@ -26,7 +28,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 		return 0;
 	}
 
-	fprintf(file, "%s ", NAMES[code]);
+	say("%s ", NAMES[code]);
 
 	for(unsigned i = 0; i < arg_count; ++i)
 	{
@@ -60,11 +62,11 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			switch(constants[id].type)
 			{
 				case M0_CONST_INT:
-				fprintf(file, "%lli", (long long)value.as_int);
+				say("%lli", (long long)value.as_int);
 				goto NEXT_ARG;
 
 				case M0_CONST_FLOAT:
-				fprintf(file, "%f", (double)value.as_float);
+				say("%f", (double)value.as_float);
 				goto NEXT_ARG;
 
 				default:
@@ -74,7 +76,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 	REGISTER_ARG:
 		{
-			fprintf(file, "%%%u", (unsigned)op.args[i]);
+			say("%%%u", (unsigned)op.args[i]);
 			goto NEXT_ARG;
 		}
 
@@ -85,7 +87,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 				return 0;
 
 			const m0_symbol *symbol = constants[id].value.as_cptr;
-			fprintf(file, "@%s", symbol->name);
+			say("@%s", symbol->name);
 			goto NEXT_ARG;
 		}
 
@@ -104,31 +106,31 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			_Bool is_displaced = address->displacement;
 			_Bool has_offset = address->offset_multiplier;
 
-			fprintf(file, "%s(", TYPES[address->type]);
+			say("%s(", TYPES[address->type]);
 
 			if(is_symbolic)
-				fprintf(file, "@%s", address->base_symbol);
+				say("@%s", address->base_symbol);
 			else
-				fprintf(file, "%%%u", (unsigned)address->base_register);
+				say("%%%u", (unsigned)address->base_register);
 
 			if(is_displaced || has_offset)
-				fprintf(file, ":");
+				say(":");
 
 			if(has_offset)
 			{
-				fprintf(file, "%%%u", (unsigned)address->offset_register);
+				say("%%%u", (unsigned)address->offset_register);
 				if(address->offset_multiplier != 1)
-					fprintf(file, "*%li", (long)address->offset_multiplier);
+					say("*%li", (long)address->offset_multiplier);
 			}
 
 			if(is_displaced)
 			{
-				fprintf(file, "%s%li", has_offset ?
+				say("%s%li", has_offset ?
 					(address->displacement < 0 ? "-" : "+") : "",
 					(long)address->displacement);
 			}
 
-			fprintf(file, ")");
+			say(")");
 
 			goto NEXT_ARG;
 		}
