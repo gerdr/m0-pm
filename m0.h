@@ -41,7 +41,7 @@ enum
 {
 	M0_CONST_INT,
 	M0_CONST_FLOAT,
-	M0_CONST_STRING,
+	M0_CONST_SYMBOL,
 	M0_CONST_ADDRESS
 };
 
@@ -60,6 +60,7 @@ typedef union m0_value_ m0_value;
 typedef struct m0_op_ m0_op;
 typedef struct m0_constant_ m0_constant;
 typedef struct m0_address_ m0_address;
+typedef struct m0_symbol_ m0_symbol;
 typedef struct m0_vm_ m0_vm;
 
 union m0_value_
@@ -89,11 +90,17 @@ struct m0_constant_
 struct m0_address_
 {
 	unsigned type;
-	const char *base_symbol;
+	const m0_symbol *base_symbol;
 	m0_uword base_register;
 	m0_word displacement;
 	m0_uword offset_register;
 	m0_word offset_multiplier;
+};
+
+struct m0_symbol_
+{
+	const char *name;
+	void *value;
 };
 
 struct m0_vm_
