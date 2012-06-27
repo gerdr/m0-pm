@@ -71,6 +71,78 @@ void m0_core(m0_vm *restrict vm)
 	fa.f += fb.f;
 	goto *(++ip)->as_cptr;
 
+	label(load_i8a_ia);
+	ia.s = (m0_int)*(int8_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_i8b_ib);
+	ib.s = (m0_int)*(int8_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u8a_ia);
+	ia.u = (m0_uint)*(uint8_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u8b_ib);
+	ib.u = (m0_uint)*(uint8_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(store_i8a_pb);
+	*(int8_t *)(pb.p + (++ip)->as_word) = (int8_t)ia.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_i8b_pa);
+	*(int8_t *)(pa.p + (++ip)->as_word) = (int8_t)ib.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_u8a_pb);
+	*(uint8_t *)(pb.p + (++ip)->as_word) = (uint8_t)ia.u;
+	goto *(++ip)->as_cptr;
+
+	label(store_u8b_pa);
+	*(uint8_t *)(pa.p + (++ip)->as_word) = (uint8_t)ib.u;
+	goto *(++ip)->as_cptr;
+
+	label(load_i16a_ia);
+	ia.s = (m0_int)*(int16_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_i16b_ib);
+	ib.s = (m0_int)*(int16_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u16a_ia);
+	ia.u = (m0_uint)*(uint16_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u16b_ib);
+	ib.u = (m0_uint)*(uint16_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(store_i16a_pb);
+	*(int16_t *)(pb.p + (++ip)->as_word) = (int16_t)ia.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_i16b_pa);
+	*(int16_t *)(pa.p + (++ip)->as_word) = (int16_t)ib.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_u16a_pb);
+	*(uint16_t *)(pb.p + (++ip)->as_word) = (uint16_t)ia.u;
+	goto *(++ip)->as_cptr;
+
+	label(store_u16b_pa);
+	*(uint16_t *)(pa.p + (++ip)->as_word) = (uint16_t)ib.u;
+	goto *(++ip)->as_cptr;
+
+	label(load_i32a_ia);
+	ia.s = (m0_int)*(int32_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_i32b_ib);
+	ib.s = (m0_int)*(int32_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
 	label(load_u32a_ia);
 	ia.u = (m0_uint)*(uint32_t *)(pa.p + (++ip)->as_word);
 	goto *(++ip)->as_cptr;
@@ -79,12 +151,52 @@ void m0_core(m0_vm *restrict vm)
 	ib.u = (m0_uint)*(uint32_t *)(pb.p + (++ip)->as_word);
 	goto *(++ip)->as_cptr;
 
+	label(store_i32a_pb);
+	*(int32_t *)(pb.p + (++ip)->as_word) = (int32_t)ia.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_i32b_pa);
+	*(int32_t *)(pa.p + (++ip)->as_word) = (int32_t)ib.s;
+	goto *(++ip)->as_cptr;
+
 	label(store_u32a_pb);
 	*(uint32_t *)(pb.p + (++ip)->as_word) = (uint32_t)ia.u;
 	goto *(++ip)->as_cptr;
 
 	label(store_u32b_pa);
 	*(uint32_t *)(pa.p + (++ip)->as_word) = (uint32_t)ib.u;
+	goto *(++ip)->as_cptr;
+
+	label(load_i64a_ia);
+	ia.s = (m0_int)*(int64_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_i64b_ib);
+	ib.s = (m0_int)*(int64_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u64a_ia);
+	ia.u = (m0_uint)*(uint64_t *)(pa.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(load_u64b_ib);
+	ib.u = (m0_uint)*(uint64_t *)(pb.p + (++ip)->as_word);
+	goto *(++ip)->as_cptr;
+
+	label(store_i64a_pb);
+	*(int64_t *)(pb.p + (++ip)->as_word) = (int64_t)ia.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_i64b_pa);
+	*(int64_t *)(pa.p + (++ip)->as_word) = (int64_t)ib.s;
+	goto *(++ip)->as_cptr;
+
+	label(store_u64a_pb);
+	*(uint64_t *)(pb.p + (++ip)->as_word) = (uint64_t)ia.u;
+	goto *(++ip)->as_cptr;
+
+	label(store_u64b_pa);
+	*(uint64_t *)(pa.p + (++ip)->as_word) = (uint64_t)ib.u;
 	goto *(++ip)->as_cptr;
 
 	label(offset_pa);

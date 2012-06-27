@@ -94,6 +94,8 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 	MEMORY_ARG:
 		{
 			static const char *const TYPES[] = {
+				[M0_MEM_I16] = "i16",
+				[M0_MEM_U16] = "u16",
 				[M0_MEM_I32] = "i32",
 				[M0_MEM_U32] = "u32"
 			};
@@ -109,6 +111,8 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 			switch(address->type)
 			{
+				case M0_MEM_I16:
+				case M0_MEM_U16:
 				case M0_MEM_I32:
 				case M0_MEM_U32:
 				say("%s(", TYPES[address->type]);

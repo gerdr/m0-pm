@@ -55,8 +55,15 @@ enum
 
 enum
 {
+	M0_MEM_VOID,
+	M0_MEM_I8,
+	M0_MEM_U8,
+	M0_MEM_I16,
+	M0_MEM_U16,
 	M0_MEM_I32,
-	M0_MEM_U32
+	M0_MEM_U32,
+	M0_MEM_I64,
+	M0_MEM_U64,
 };
 
 typedef int64_t m0_int;
@@ -119,24 +126,61 @@ struct m0_vm_
 };
 
 extern const char m0_core_yield[];
+
 extern const char m0_core_set_ia[];
 extern const char m0_core_set_ib[];
 extern const char m0_core_set_pa[];
 extern const char m0_core_set_pb[];
+
 extern const char m0_core_get_ia[];
 extern const char m0_core_get_ib[];
 extern const char m0_core_get_pa[];
 extern const char m0_core_get_pb[];
+
 extern const char m0_core_put_ia[];
+
 extern const char m0_core_add_ia[];
 extern const char m0_core_mul_ia[];
 extern const char m0_core_add_fa[];
+
+extern const char m0_core_load_i8a_ia[];
+extern const char m0_core_load_i8b_ib[];
+extern const char m0_core_load_u8a_ia[];
+extern const char m0_core_load_u8b_ib[];
+extern const char m0_core_store_i8a_pb[];
+extern const char m0_core_store_i8b_pa[];
+extern const char m0_core_store_u8a_pb[];
+extern const char m0_core_store_u8b_pa[];
+
+extern const char m0_core_load_i16a_ia[];
+extern const char m0_core_load_i16b_ib[];
+extern const char m0_core_load_u16a_ia[];
+extern const char m0_core_load_u16b_ib[];
+extern const char m0_core_store_i16a_pb[];
+extern const char m0_core_store_i16b_pa[];
+extern const char m0_core_store_u16a_pb[];
+extern const char m0_core_store_u16b_pa[];
+
+extern const char m0_core_load_i32a_ia[];
+extern const char m0_core_load_i32b_ib[];
 extern const char m0_core_load_u32a_ia[];
 extern const char m0_core_load_u32b_ib[];
-extern const char m0_core_offset_pa[];
-extern const char m0_core_offset_pb[];
+extern const char m0_core_store_i32a_pb[];
+extern const char m0_core_store_i32b_pa[];
 extern const char m0_core_store_u32a_pb[];
 extern const char m0_core_store_u32b_pa[];
+
+extern const char m0_core_load_i64a_ia[];
+extern const char m0_core_load_i64b_ib[];
+extern const char m0_core_load_u64a_ia[];
+extern const char m0_core_load_u64b_ib[];
+extern const char m0_core_store_i64a_pb[];
+extern const char m0_core_store_i64b_pa[];
+extern const char m0_core_store_u64a_pb[];
+extern const char m0_core_store_u64b_pa[];
+
+extern const char m0_core_offset_pa[];
+extern const char m0_core_offset_pb[];
 
 extern void m0_core(m0_vm *restrict vm);
 
