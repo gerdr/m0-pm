@@ -34,6 +34,8 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 	for(unsigned i = 0; i < arg_count; ++i)
 	{
+		if(i > 0) fputs(", ", file);
+
 		switch(m0_argtype(op, i))
 		{
 			case M0_ARG_IMMEDIATE:
@@ -52,10 +54,6 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			return 0;
 		}
 
-	NEXT_ARG:
-		fputs(i < 2 ? ", " : "\n", file);
-		continue;
-
 	IMMEDIATE_ARG:
 		{
 			unsigned id = op.args[i];
@@ -65,11 +63,11 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			{
 				case M0_CONST_INT:
 				say("%lli", (long long)value.as_int);
-				goto NEXT_ARG;
+				continue;
 
 				case M0_CONST_FLOAT:
 				say("%f", (double)value.as_float);
-				goto NEXT_ARG;
+				continue;
 
 				default:
 				return 0;
@@ -79,7 +77,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 	REGISTER_ARG:
 		{
 			say("%%%u", (unsigned)op.args[i]);
-			goto NEXT_ARG;
+			continue;
 		}
 
 	SYMBOLIC_ARG:
@@ -90,7 +88,7 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 			const m0_symbol *symbol = constants[id].value.as_cptr;
 			say("@%s", symbol->name);
-			goto NEXT_ARG;
+			continue;
 		}
 
 	MEMORY_ARG:
@@ -144,9 +142,11 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 
 			say(")");
 
-			goto NEXT_ARG;
+			continue;
 		}
 	}
+
+	fputs("\n", file);
 
 	return 1;
 }
