@@ -5,7 +5,7 @@
 	__asm__ __volatile__ (".global m0_core_" #NAME "\nm0_core_" #NAME ":")
 
 typedef union { m0_int s; m0_uint u; } ireg;
-typedef union { char *p; m0_word s; m0_uword u; } wreg;
+typedef union { char *p; } preg;
 typedef union { m0_float f; } freg;
 
 void m0_core(m0_vm *restrict vm)
@@ -14,7 +14,7 @@ void m0_core(m0_vm *restrict vm)
 	register m0_value *restrict rp = vm->rp;
 
 	register ireg ia, ib;
-	register wreg wa, wb;
+	register preg pa, pb;
 	register freg fa, fb;
 
 	goto *ip->as_cptr;
@@ -35,12 +35,28 @@ void m0_core(m0_vm *restrict vm)
 	ib.u = (++ip)->as_uint;
 	goto *(++ip)->as_cptr;
 
+	label(set_pa);
+	pa.p = (++ip)->as_ptr;
+	goto *(++ip)->as_cptr;
+
+	label(set_pb);
+	pb.p = (++ip)->as_ptr;
+	goto *(++ip)->as_cptr;
+
 	label(get_ia);
 	ia.u = rp[(++ip)->as_uword].as_uint;
 	goto *(++ip)->as_cptr;
 
 	label(get_ib);
 	ib.u = rp[(++ip)->as_uword].as_uint;
+	goto *(++ip)->as_cptr;
+
+	label(get_pa);
+	pa.p = rp[(++ip)->as_uword].as_ptr;
+	goto *(++ip)->as_cptr;
+
+	label(get_pb);
+	pb.p = rp[(++ip)->as_uword].as_ptr;
 	goto *(++ip)->as_cptr;
 
 	label(add_ia);
@@ -55,20 +71,28 @@ void m0_core(m0_vm *restrict vm)
 	fa.f += fb.f;
 	goto *(++ip)->as_cptr;
 
-	label(load_u32_ia);
-	ia.u = (m0_uint)*(uint32_t *)(wa.p + (++ip)->as_word);
+	label(load_u32a_ia);
+	ia.u = (m0_uint)*(uint32_t *)(pa.p + (++ip)->as_word);
 	goto *(++ip)->as_cptr;
 
-	label(load_u32_ib);
-	ib.u = (m0_uint)*(uint32_t *)(wb.p + (++ip)->as_word);
+	label(load_u32b_ib);
+	ib.u = (m0_uint)*(uint32_t *)(pb.p + (++ip)->as_word);
 	goto *(++ip)->as_cptr;
 
-	label(offset_wa);
-	wa.p += (m0_word)ia.s * (++ip)->as_word;
+	label(store_u32a_pb);
+	*(uint32_t *)(pb.p + (++ip)->as_word) = (uint32_t)ia.u;
 	goto *(++ip)->as_cptr;
 
-	label(offset_wb);
-	wb.p += (m0_word)ib.s * (++ip)->as_word;
+	label(store_u32b_pa);
+	*(uint32_t *)(pa.p + (++ip)->as_word) = (uint32_t)ib.u;
+	goto *(++ip)->as_cptr;
+
+	label(offset_pa);
+	pa.p += (m0_word)ia.s * (++ip)->as_word;
+	goto *(++ip)->as_cptr;
+
+	label(offset_pb);
+	pb.p += (m0_word)ib.s * (++ip)->as_word;
 	goto *(++ip)->as_cptr;
 
 	label(yield);

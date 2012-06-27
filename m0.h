@@ -1,3 +1,4 @@
+
 #ifndef M0_H_
 #define M0_H_
 
@@ -21,6 +22,9 @@
 
 #define m0_op_mii(NAME, ...) \
 	m0_op_(NAME, MEMORY, IMMEDIATE, IMMEDIATE, __VA_ARGS__)
+
+#define m0_op_mri(NAME, ...) \
+	m0_op_(NAME, MEMORY, REGISTER, IMMEDIATE, __VA_ARGS__)
 
 #define m0_op_rrr(NAME, ...) \
 	m0_op_(NAME, REGISTER, REGISTER, REGISTER, __VA_ARGS__)
@@ -51,7 +55,8 @@ enum
 
 enum
 {
-	M0_MEM_I32
+	M0_MEM_I32,
+	M0_MEM_U32
 };
 
 typedef int64_t m0_int;
@@ -116,16 +121,22 @@ struct m0_vm_
 extern const char m0_core_yield[];
 extern const char m0_core_set_ia[];
 extern const char m0_core_set_ib[];
+extern const char m0_core_set_pa[];
+extern const char m0_core_set_pb[];
 extern const char m0_core_get_ia[];
 extern const char m0_core_get_ib[];
+extern const char m0_core_get_pa[];
+extern const char m0_core_get_pb[];
 extern const char m0_core_put_ia[];
 extern const char m0_core_add_ia[];
 extern const char m0_core_mul_ia[];
 extern const char m0_core_add_fa[];
-extern const char m0_core_load_u32_ia[];
-extern const char m0_core_load_u32_ib[];
-extern const char m0_core_offset_wa[];
-extern const char m0_core_offset_wb[];
+extern const char m0_core_load_u32a_ia[];
+extern const char m0_core_load_u32b_ib[];
+extern const char m0_core_offset_pa[];
+extern const char m0_core_offset_pb[];
+extern const char m0_core_store_u32a_pb[];
+extern const char m0_core_store_u32b_pa[];
 
 extern void m0_core(m0_vm *restrict vm);
 

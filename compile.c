@@ -48,8 +48,8 @@ BINOP:
 		};
 
 		static const void *const LOAD32_I[] = {
-			[1] = m0_core_load_u32_ia,
-			[2] = m0_core_load_u32_ib
+			[1] = m0_core_load_u32a_ia,
+			[2] = m0_core_load_u32b_ib
 		};
 
 		switch(m0_argtype(op, i))
@@ -109,6 +109,55 @@ BINOP:
 			return 0;
 		}
 		break;
+
+		case M0_ARG_MEMORY:
+		{
+			unsigned id = op.args[0];
+			if(!constants[id].type == M0_CONST_ADDRESS)
+				return 0;
+
+			const m0_address *address = constants[id].value.as_cptr;
+
+			if(address->base_symbol)
+			{
+				buffer[count++].as_cptr = m0_core_set_pb;
+				buffer[count++].as_ptr = address->base_symbol->value;
+			}
+			else
+			{
+				buffer[count++].as_cptr = m0_core_get_pb;
+				buffer[count++].as_uword = address->base_register;
+			}
+
+			if(address->offset_multiplier)
+			{
+				buffer[count++].as_cptr = m0_core_get_ib;
+				buffer[count++].as_uword = address->offset_register;
+				buffer[count++].as_cptr = m0_core_offset_pb;
+				buffer[count++].as_word = address->offset_multiplier;
+			}
+
+			switch(mode)
+			{
+				case INT:
+				switch(address->type)
+				{
+					case M0_MEM_U32:
+					buffer[count++].as_cptr = m0_core_store_u32a_pb;
+					buffer[count++].as_word = address->displacement;
+					break;
+
+					default:
+					return 0;
+				}
+				break;
+
+				default:
+				return 0;
+			}
+
+			break;
+		}
 
 		default:
 		return 0;

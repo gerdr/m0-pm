@@ -96,7 +96,8 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 	MEMORY_ARG:
 		{
 			static const char *const TYPES[] = {
-				[M0_MEM_I32] = "i32"
+				[M0_MEM_I32] = "i32",
+				[M0_MEM_U32] = "u32"
 			};
 
 			unsigned id = op.args[i];
@@ -108,10 +109,19 @@ _Bool m0_disassemble(m0_op op, const m0_constant *constants, FILE *file)
 			_Bool is_displaced = address->displacement;
 			_Bool has_offset = address->offset_multiplier;
 
-			say("%s(", TYPES[address->type]);
+			switch(address->type)
+			{
+				case M0_MEM_I32:
+				case M0_MEM_U32:
+				say("%s(", TYPES[address->type]);
+				break;
+
+				default:
+				return 0;
+			}
 
 			if(is_symbolic)
-				say("@%s", address->base_symbol);
+				say("@%s", address->base_symbol->name);
 			else
 				say("%%%u", (unsigned)address->base_register);
 
