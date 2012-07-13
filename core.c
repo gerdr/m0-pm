@@ -1,7 +1,7 @@
 #include "m0.h"
 
 #define label(NAME) \
-	static const void *const NAME ## _ = &&NAME; NAME: \
+	static const void *const NAME ## _ = &&NAME; (void)NAME ## _; NAME: \
 	__asm__ __volatile__ (".global m0_core_" #NAME "\nm0_core_" #NAME ":")
 
 typedef union { m0_int s; m0_uint u; } ireg;
