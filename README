@@ -1,0 +1,8 @@
+Based on my ramblings at http://gerdr.github.com/on-parrot/rethinking-m0.html
+
+This is actually the 2nd prototype - I already took a shot at it last year
+(Sep-Dec 2011), but lost interest when the codebase became too bothersome.
+
+This version is a bit more tractable as I figured out how to abuse gcc via
+computed gotos and inline assembly to produce identical code to the formerly
+Perl-generated LLVM IR.
